@@ -1,18 +1,18 @@
 const { isValidObjectId } = require("mongoose")
 const userModel = require("../models/user.model")
-const postModel = require("../models/post.model")
+const expensesModel = require("../models/expenses.model")
 
 
 
 const getAllUser = async (req, res) => {
-    const users = await userModel.find().select('-password').populate('posts', '-user')
+    const users = await userModel.find().select('-password').populate('expenses', '-user')
     res.json(users)
 }
 
 const getUserById = async (req, res) => {
     const {id} = req.params
     if(!isValidObjectId(id)) return res.status(400).json({message: 'wrong user id is provided'})
-    const user = await userModel.findById(id).select('-password').populate('posts', '-user')
+    const user = await userModel.findById(id).select('-password').populate('expenses', '-user')
     if(!user) return res.status(400).json({message: "user not found"})
         
     res.json(user)
@@ -26,7 +26,7 @@ const deleteUserById = async (req, res) => {
     if(id !== req.userId) return res.status(401).json({message: 'unauthorized'})    
     
     const deletedUser = await userModel.findByIdAndDelete(req.userId)
-    await postModel.deleteMany({user: req.userId})
+    await expensesModel.deleteMany({user: req.userId})
 
     res.json({message: 'user deleted successfully', data: deletedUser})
 }
